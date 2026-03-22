@@ -1,0 +1,7 @@
+{
+  "realm": "demojs",
+  "auth-server-url": "https://example-kc-user1.apps.cluster-xxjcl.xxjcl.sandbox3324.opentlc.com/",
+  "ssl-required": "external",
+  "resource": "js-console",
+  "public-client": true
+}

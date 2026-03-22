@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Keycloak JS Console</title>
+  <script type="module" crossorigin src="/assets/index-D_B9trOW.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-HIzUTMoV.css">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-brand">Keycloak JS Console</div>
+    <div class="navbar-actions">
+      <button id="btn-login" class="btn btn-primary">Login</button>
+      <button id="btn-logout" class="btn btn-danger">Logout</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <section class="profile-card" id="profile-section" style="display: none;">
+      <div class="profile-header">
+        <img id="profile-avatar" class="avatar" src="" alt="avatar" style="display: none;" />
+        <h2 id="profile-name"></h2>
+        <p id="profile-email" class="text-muted"></p>
+      </div>
+    </section>
+
+    <section class="actions-card">
+      <h3>Token Actions</h3>
+      <div class="btn-group">
+        <button id="btn-refresh" class="btn btn-secondary">Refresh Token</button>
+        <button id="btn-id-token-parsed" class="btn btn-secondary">ID Token (JSON)</button>
+        <button id="btn-access-token-parsed" class="btn btn-secondary">Access Token (JSON)</button>
+        <button id="btn-id-token" class="btn btn-secondary">ID Token (Raw)</button>
+        <button id="btn-access-token" class="btn btn-secondary">Access Token (Raw)</button>
+        <button id="btn-refresh-token" class="btn btn-secondary">Refresh Token (Raw)</button>
+      </div>
+    </section>
+
+    <section class="output-card">
+      <div class="output-header">
+        <h3>Output</h3>
+        <button id="btn-clear" class="btn btn-ghost">Clear</button>
+      </div>
+      <div id="output" class="output-body">
+        <p class="text-muted">Click an action above to inspect tokens&hellip;</p>
+      </div>
+    </section>
+
+    <section class="events-card">
+      <h3>Events</h3>
+      <div id="events" class="events-body">
+        <p class="text-muted">Keycloak lifecycle events will appear here&hellip;</p>
+      </div>
+    </section>
+  </main>
+
+</body>
+</html>
