@@ -1,5 +1,5 @@
 {
   "realm" : "demojs",
-  "auth-server-url" : "https://example-kc-user1.apps.cluster-xxjcl.xxjcl.sandbox3324.opentlc.com/auth",
+  "auth-server-url" : "https://sso-user1-keycloak.apps.cluster-xxjcl.xxjcl.sandbox3324.opentlc.com/auth",
   "resource" : "js-console"
 }
