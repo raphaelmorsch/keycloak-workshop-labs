@@ -1,6 +1,6 @@
 import Keycloak from 'keycloak-js';
 
-const keycloak = new Keycloak('/keycloak.json');
+const keycloak = new Keycloak('./keycloak.json');
 
 const events = [];
 const MAX_EVENTS = 10;
@@ -106,7 +106,7 @@ keycloak.onTokenExpired = () => {
 // --- Initialize ---
 
 keycloak
-  .init({ onLoad: 'check-sso', silentCheckSsoRedirectUri: `${window.location.origin}/silent-check-sso.html` })
+  .init({ onLoad: 'check-sso', silentCheckSsoRedirectUri: new URL('./silent-check-sso.html', window.location.href).href })
   .then((authenticated) => {
     if (authenticated) {
       updateProfile();
