@@ -103,22 +103,46 @@ keycloak.onTokenExpired = () => {
   });
 };
 
-// --- Initialize ---
+// --- Initialize with diagnostics ---
 
-keycloak
-  .init({ onLoad: 'login-required' })
-  .then((authenticated) => {
+async function initKeycloak() {
+  const config = await fetch('./keycloak.json').then((r) => r.json());
+  const baseUrl = config['auth-server-url'].replace(/\/+$/, '');
+  const discoveryUrl = `${baseUrl}/realms/${config.realm}`;
+
+  logEvent(`Keycloak URL: ${baseUrl}`, 'info');
+  logEvent(`Discovering: ${discoveryUrl}`, 'info');
+
+  try {
+    const resp = await fetch(discoveryUrl);
+    if (!resp.ok) {
+      logEvent(`Discovery failed: HTTP ${resp.status} — check realm name and Keycloak URL`, 'error');
+      showOutput(`Discovery endpoint returned HTTP ${resp.status}.\n\nURL tried: ${discoveryUrl}\n\nPossible causes:\n- Wrong realm name (configured: "${config.realm}")\n- Keycloak may need /auth in the URL (try: ${baseUrl}/auth)\n- Keycloak server is down`);
+      return;
+    }
+    const realmInfo = await resp.json();
+    logEvent(`Discovery OK — realm "${realmInfo.realm}" found`, 'success');
+  } catch (e) {
+    logEvent(`Discovery network error — likely CORS`, 'error');
+    showOutput(`Cannot reach Keycloak at:\n  ${discoveryUrl}\n\nError: ${e.message}\n\nPossible causes:\n1. CORS: In Keycloak Admin → Clients → ${config.resource} → "Web Origins" must include this app's origin or "+"\n2. Keycloak may need /auth in the URL\n3. Keycloak server is unreachable from the browser`);
+    return;
+  }
+
+  try {
+    const authenticated = await keycloak.init({ onLoad: 'login-required' });
     if (authenticated) {
       updateProfile();
       logEvent('Initialized — user is authenticated', 'success');
     } else {
       logEvent('Initialized — user is NOT authenticated', 'info');
     }
-  })
-  .catch((err) => {
+  } catch (err) {
     logEvent(`Init error: ${err}`, 'error');
     console.error('Keycloak init failed', err);
-  });
+  }
+}
+
+initKeycloak();
 
 // --- Button handlers ---
 
