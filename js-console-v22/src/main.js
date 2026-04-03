@@ -106,7 +106,7 @@ keycloak.onTokenExpired = () => {
 // --- Initialize ---
 
 keycloak
-  .init({ onLoad: 'check-sso', silentCheckSsoRedirectUri: new URL('./silent-check-sso.html', window.location.href).href })
+  .init({ onLoad: 'login-required' })
   .then((authenticated) => {
     if (authenticated) {
       updateProfile();
