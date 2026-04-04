@@ -1,6 +1,6 @@
 {
   "realm": "demojs",
-  "auth-server-url": "https://kc.apps.cluster-hgzmt.hgzmt.sandbox1467.opentlc.com/",
+  "auth-server-url": "https://custom-keycloak-keycloak-custom.apps.cluster-hgzmt.hgzmt.sandbox1467.opentlc.com/",
   "ssl-required": "external",
   "resource": "js-console",
   "public-client": true
