@@ -103,31 +103,82 @@ keycloak.onTokenExpired = () => {
   });
 };
 
-// --- Initialize with diagnostics ---
+// --- Initialize with full diagnostics ---
 
 async function initKeycloak() {
   const config = await fetch('./keycloak.json').then((r) => r.json());
   const baseUrl = config['auth-server-url'].replace(/\/+$/, '');
-  const discoveryUrl = `${baseUrl}/realms/${config.realm}`;
+  const realmUrl = `${baseUrl}/realms/${config.realm}`;
 
-  logEvent(`Keycloak URL: ${baseUrl}`, 'info');
-  logEvent(`Discovering: ${discoveryUrl}`, 'info');
+  const urlParams = new URLSearchParams(window.location.search);
+  const isPostRedirect = urlParams.has('code') && urlParams.has('state');
 
+  logEvent(`App origin: ${window.location.origin}`, 'info');
+  logEvent(`Keycloak URL: ${realmUrl}`, 'info');
+
+  if (isPostRedirect) {
+    logEvent('Post-login redirect detected (code + state in URL)', 'info');
+  }
+
+  // Step 1: Can we reach the realm endpoint?
+  let realmInfo;
   try {
-    const resp = await fetch(discoveryUrl);
+    const resp = await fetch(realmUrl);
     if (!resp.ok) {
-      logEvent(`Discovery failed: HTTP ${resp.status} — check realm name and Keycloak URL`, 'error');
-      showOutput(`Discovery endpoint returned HTTP ${resp.status}.\n\nURL tried: ${discoveryUrl}\n\nPossible causes:\n- Wrong realm name (configured: "${config.realm}")\n- Keycloak may need /auth in the URL (try: ${baseUrl}/auth)\n- Keycloak server is down`);
+      logEvent(`Discovery FAILED: HTTP ${resp.status}`, 'error');
+      showOutput(
+        `Keycloak realm endpoint returned HTTP ${resp.status}.\n\n`
+        + `URL: ${realmUrl}\n\n`
+        + `Possible fixes:\n`
+        + `  1. Realm "${config.realm}" might not exist — create it in the admin console\n`
+        + `  2. URL may need /auth prefix — try: ${baseUrl}/auth/realms/${config.realm}\n`
+        + `  3. Keycloak server might be down`
+      );
       return;
     }
-    const realmInfo = await resp.json();
-    logEvent(`Discovery OK — realm "${realmInfo.realm}" found`, 'success');
+    realmInfo = await resp.json();
+    logEvent(`Discovery OK: realm "${realmInfo.realm}"`, 'success');
   } catch (e) {
-    logEvent(`Discovery network error — likely CORS`, 'error');
-    showOutput(`Cannot reach Keycloak at:\n  ${discoveryUrl}\n\nError: ${e.message}\n\nPossible causes:\n1. CORS: In Keycloak Admin → Clients → ${config.resource} → "Web Origins" must include this app's origin or "+"\n2. Keycloak may need /auth in the URL\n3. Keycloak server is unreachable from the browser`);
+    logEvent(`Discovery BLOCKED (CORS or network)`, 'error');
+    showOutput(
+      `Cannot reach Keycloak from the browser.\n\n`
+      + `URL tried: ${realmUrl}\n`
+      + `Error: ${e.message}\n\n`
+      + `FIX: In Keycloak Admin Console:\n`
+      + `  → Clients → "${config.resource}" → Settings\n`
+      + `  → "Web Origins" field → add:  ${window.location.origin}\n`
+      + `     (or use  +  to allow all valid redirect URIs)\n\n`
+      + `Also check "Valid Redirect URIs" includes:\n`
+      + `  ${window.location.origin}/*`
+    );
     return;
   }
 
+  // Step 2: If we're post-redirect, check the token endpoint is reachable
+  if (isPostRedirect && realmInfo['token-endpoint']) {
+    const tokenUrl = realmInfo['token-endpoint'];
+    logEvent(`Token endpoint: ${tokenUrl}`, 'info');
+    try {
+      const probe = await fetch(tokenUrl, { method: 'POST', body: 'grant_type=probe' });
+      logEvent(`Token endpoint reachable (HTTP ${probe.status})`, 'success');
+    } catch (e) {
+      logEvent(`Token endpoint BLOCKED by CORS!`, 'error');
+      showOutput(
+        `Keycloak login succeeded but the token exchange is blocked by CORS.\n\n`
+        + `Token endpoint: ${tokenUrl}\n`
+        + `App origin: ${window.location.origin}\n\n`
+        + `FIX: In Keycloak Admin Console:\n`
+        + `  → Clients → "${config.resource}" → Settings\n`
+        + `  → "Web Origins" field → add:  ${window.location.origin}\n`
+        + `     (or use  +  to allow all valid redirect URIs)\n\n`
+        + `  → Save → try again`
+      );
+      return;
+    }
+  }
+
+  // Step 3: Initialize the adapter
+  logEvent('Calling keycloak.init()...', 'info');
   try {
     const authenticated = await keycloak.init({ onLoad: 'login-required' });
     if (authenticated) {
@@ -137,7 +188,18 @@ async function initKeycloak() {
       logEvent('Initialized — user is NOT authenticated', 'info');
     }
   } catch (err) {
-    logEvent(`Init error: ${err}`, 'error');
+    let hint = '';
+    if (isPostRedirect) {
+      hint = '\n\nYou were redirected back from Keycloak with an auth code, '
+        + 'but the token exchange failed.\n\n'
+        + `Check the browser DevTools Console (F12) for CORS or network errors.\n\n`
+        + `Also verify in Keycloak Admin:\n`
+        + `  → Clients → "${config.resource}"\n`
+        + `  → "Web Origins" includes: ${window.location.origin}  (or  + )\n`
+        + `  → "Valid Redirect URIs" includes: ${window.location.origin}/*`;
+    }
+    logEvent(`Init FAILED: ${err || 'undefined (no error details from adapter)'}`, 'error');
+    showOutput(`Keycloak init failed.\n\nError: ${err || 'undefined'}${hint}`);
     console.error('Keycloak init failed', err);
   }
 }
