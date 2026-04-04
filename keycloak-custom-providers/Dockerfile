@@ -24,3 +24,4 @@ COPY --from=builder /build/token-validation/target/token-validation.jar /opt/key
 RUN /opt/keycloak/bin/kc.sh build
 
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
+CMD ["start-dev"]
