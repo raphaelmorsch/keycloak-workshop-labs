@@ -1,0 +1,30 @@
+/* Sunrise theme — custom overrides on top of the keycloak parent theme */
+
+body.kc-body {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7c948 100%);
+}
+
+#kc-header-wrapper {
+    font-size: 2rem;
+    color: #fff;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+#kc-content-wrapper {
+    margin-top: 2rem;
+}
+
+.card-pf {
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary {
+    background-color: #ff6b35;
+    border-color: #e85d2c;
+}
+
+.btn-primary:hover {
+    background-color: #e85d2c;
+    border-color: #d14e1f;
+}
