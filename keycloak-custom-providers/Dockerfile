@@ -15,7 +15,7 @@ COPY . .
 RUN mvn clean package -DskipTests -B
 
 ## Stage 2: Build a custom Keycloak image with the providers
-FROM quay.io/keycloak/keycloak:22.0 AS keycloak
+FROM registry.redhat.io/rhbk/keycloak-rhel9:22 AS keycloak
 
 COPY --from=builder /build/magic-link/target/magic-link.jar /opt/keycloak/providers/
 COPY --from=builder /build/themes/target/themes.jar /opt/keycloak/providers/
