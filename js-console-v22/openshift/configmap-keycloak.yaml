@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: js-console-keycloak-config
+data:
+  keycloak.json: |
+    {
+      "realm": "demojs",
+      "auth-server-url": "https://<your-keycloak-host>/",
+      "ssl-required": "external",
+      "resource": "js-console",
+      "public-client": true
+    }

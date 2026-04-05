@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "start": "serve dist -l 8080",
+    "start": "node generate-config.js && serve dist -l 8080",
     "preview": "vite preview"
   },
   "dependencies": {

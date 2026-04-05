@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: js-console
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: js-console
+  template:
+    metadata:
+      labels:
+        app: js-console
+    spec:
+      containers:
+        - name: js-console
+          image: image-registry.openshift-image-registry.svc:5000/<namespace>/js-console:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: KC_AUTH_URL
+              value: "https://<your-keycloak-host>/"
+            - name: KC_REALM
+              value: "demojs"
+            - name: KC_CLIENT_ID
+              value: "js-console"

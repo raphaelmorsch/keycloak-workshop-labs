@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: js-console
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: js-console
+  template:
+    metadata:
+      labels:
+        app: js-console
+    spec:
+      containers:
+        - name: js-console
+          image: image-registry.openshift-image-registry.svc:5000/<namespace>/js-console:latest
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: keycloak-config
+              mountPath: /config
+              readOnly: true
+      volumes:
+        - name: keycloak-config
+          configMap:
+            name: js-console-keycloak-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: js-console
+spec:
+  selector:
+    app: js-console
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: js-console
+spec:
+  to:
+    kind: Service
+    name: js-console
+  port:
+    targetPort: 8080
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
