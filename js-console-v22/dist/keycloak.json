@@ -1,7 +1,7 @@
 {
-  "realm": "myrealm",
-  "auth-server-url": "https://my-keycloak.example.com",
+  "realm": "demojs",
+  "auth-server-url": "https://custom-keycloak-keycloak-custom.apps.cluster-hgzmt.hgzmt.sandbox1467.opentlc.com/",
   "ssl-required": "external",
-  "resource": "my-app",
+  "resource": "js-console",
   "public-client": true
 }

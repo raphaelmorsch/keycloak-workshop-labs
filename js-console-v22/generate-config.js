@@ -6,7 +6,8 @@ const mountedConfig = process.env.KC_CONFIG_PATH || '/config/keycloak.json';
 
 if (fs.existsSync(mountedConfig)) {
   console.log(`[config] Using mounted ConfigMap: ${mountedConfig}`);
-  fs.copyFileSync(mountedConfig, distConfig);
+  const content = fs.readFileSync(mountedConfig, 'utf8');
+  fs.writeFileSync(distConfig, content);
 } else if (process.env.KC_AUTH_URL && process.env.KC_REALM && process.env.KC_CLIENT_ID) {
   const config = {
     realm: process.env.KC_REALM,
