@@ -7,18 +7,24 @@ import javax.ws.rs.core.*;
 import java.util.List;
 import org.jboss.resteasy.reactive.NoCache;
 import javax.annotation.security.RolesAllowed;
+import org.jboss.resteasy.reactive.NoCache;
+import javax.annotation.security.RolesAllowed;
 
 @Path("/books")
 public class BookResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("user")
+    @NoCache
     public List<Book> getAll() {
         return Book.getAll();
     }
 
     @GET
     @Path("/{isbn}")
+    @RolesAllowed("user")
+    @NoCache
     public Book getOne(@PathParam("isbn") String isbn) {
         Book entity = Book.getOne(isbn);
         if (entity == null) {
@@ -29,6 +35,8 @@ public class BookResource {
 
     @POST
     @Transactional
+    @RolesAllowed("admin")
+    @NoCache
     public Response create(@Valid Book item) {
         item.persist();
         return Response.status(Response.Status.CREATED).entity(item).build();
@@ -37,6 +45,8 @@ public class BookResource {
     @PUT
     @Path("/{id}") 
     @Transactional
+    @RolesAllowed("admin")
+    @NoCache
     public Response update(@Valid Book book, @PathParam("id") String isbn) {
         Book entity = Book.findById(isbn);
         entity.title = book.title;
@@ -48,6 +58,8 @@ public class BookResource {
     @DELETE
     @Path("/{isbn}")
     @Transactional
+    @RolesAllowed("admin")
+    @NoCache
     public Response deleteOne(@PathParam("isbn") String isbn) {
         Book entity = Book.findById(isbn);
         if (entity == null) {

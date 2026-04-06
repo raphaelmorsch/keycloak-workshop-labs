@@ -32,6 +32,6 @@ public class Book extends PanacheEntityBase {
     }
 
     public static Book getOne(String isbn) {
-        return findById("isbn", isbn).firstResult();
+        return find("isbn", isbn).firstResult();
     }
 }
